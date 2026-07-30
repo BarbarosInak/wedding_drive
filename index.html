@@ -95,12 +95,12 @@
     <div class="frame"></div>
     <div class="glass">🥂</div>
     <h1>Fotoğrafları Paylaş</h1>
-    <p class="sub">Çektiğiniz güzel anıları bizimle paylaşmak için<br>Google Drive'ı açıyoruz…</p>
+    <p class="sub">Çektiğiniz güzel anıları bizimle paylaşmak için<br>aşağıdaki butona basın.</p>
 
-    <a id="manualBtn" class="btn" href="#">Klasörü Aç</a>
+    <a id="manualBtn" class="btn" href="#">Fotoğrafları Yükleyin</a>
 
     <div class="divider"></div>
-    <div class="status" id="status">Yönlendiriliyor…</div>
+    <div class="status" id="status"></div>
   </div>
 
 <script>
@@ -118,49 +118,44 @@
   var statusEl = document.getElementById('status');
   var manualBtn = document.getElementById('manualBtn');
 
-  manualBtn.href = FOLDER_URL;
+  function openDrive(e){
+    e.preventDefault();
 
-  function goBrowser(){
-    window.location.href = FOLDER_URL;
+    if (isAndroid) {
+      statusEl.textContent = "Drive uygulaması açılıyor…";
+      var intentUrl =
+        "intent://drive.google.com/drive/folders/" + FOLDER_ID +
+        "?usp=sharing#Intent;scheme=https;package=" + ANDROID_PKG +
+        ";S.browser_fallback_url=" + encodeURIComponent(PLAY_STORE) + ";end";
+      window.location.href = intentUrl;
+      // Android's intent scheme handles the Play Store fallback natively.
+
+    } else if (isIOS) {
+      statusEl.textContent = "Drive uygulaması açılıyor…";
+      var deepLink = "googledrive://" + FOLDER_URL;
+
+      var hasLeft = false;
+      document.addEventListener('visibilitychange', function(){
+        if (document.hidden) hasLeft = true;
+      });
+      window.addEventListener('pagehide', function(){ hasLeft = true; });
+
+      window.location.href = deepLink;
+
+      setTimeout(function(){
+        if (!hasLeft) {
+          statusEl.textContent = "Uygulama bulunamadı, App Store'a yönlendiriliyorsunuz…";
+          window.location.href = IOS_APP_STORE;
+        }
+      }, 1400);
+
+    } else {
+      // Desktop / other devices — just open in browser
+      window.location.href = FOLDER_URL;
+    }
   }
 
-  if (isAndroid) {
-    statusEl.textContent = "Drive uygulaması açılıyor…";
-    var intentUrl =
-      "intent://drive.google.com/drive/folders/" + FOLDER_ID +
-      "?usp=sharing#Intent;scheme=https;package=" + ANDROID_PKG +
-      ";S.browser_fallback_url=" + encodeURIComponent(PLAY_STORE) + ";end";
-    manualBtn.href = intentUrl;
-    window.location.href = intentUrl;
-    // Android's intent scheme handles the Play Store fallback natively.
-
-  } else if (isIOS) {
-    statusEl.textContent = "Drive uygulaması açılıyor…";
-    var deepLink = "googledrive://" + FOLDER_URL;
-    manualBtn.href = deepLink;
-
-    var hasLeft = false;
-    document.addEventListener('visibilitychange', function(){
-      if (document.hidden) hasLeft = true;
-    });
-    window.addEventListener('pagehide', function(){ hasLeft = true; });
-
-    window.location.href = deepLink;
-
-    setTimeout(function(){
-      if (!hasLeft) {
-        statusEl.textContent = "Uygulama bulunamadı, App Store'a yönlendiriliyorsunuz…";
-        manualBtn.href = IOS_APP_STORE;
-        manualBtn.textContent = "App Store'dan İndir";
-        window.location.href = IOS_APP_STORE;
-      }
-    }, 1400);
-
-  } else {
-    // Desktop / other devices — just open in browser
-    statusEl.textContent = "Tarayıcıda açılıyor…";
-    setTimeout(goBrowser, 600);
-  }
+  manualBtn.addEventListener('click', openDrive);
 </script>
 
 </body>
