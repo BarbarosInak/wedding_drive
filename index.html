@@ -7,73 +7,94 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
 <style>
-  :root{
-    --sand:#f4ecdb; --wine-deep:#591b30; --wine:#7c2c46;
-    --gold:#a9854f; --ink:#2d241d; --ink-soft:#6b5c4c;
+  :root {
+    --sand: #f4ecdb; --wine-deep: #591b30; --wine: #7c2c46;
+    --gold: #a9854f; --ink: #2d241d; --ink-soft: #6b5c4c;
   }
-  *{box-sizing:border-box;}
-  html,body{margin:0;padding:0;height:100%;background:#d8c9ab;font-family:'EB Garamond',serif;color:var(--ink);}
-  body{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;}
-  .card{width:420px;max-width:100%;background:var(--sand);border:1px solid rgba(169,133,79,.35);
-    box-shadow:0 30px 70px rgba(45,36,29,.3);padding:48px 34px 40px;text-align:center;position:relative;}
-  .frame{position:absolute;inset:14px;border:1px solid rgba(169,133,79,.45);pointer-events:none;}
-  .glass{font-size:34px;margin-bottom:12px;}
-  h1{font-family:'Cormorant Garamond',serif;font-weight:500;font-size:28px;color:var(--wine-deep);margin:0 0 8px;}
-  p.sub{font-size:15.5px;color:var(--ink-soft);font-style:italic;line-height:1.6;margin:0 0 26px;}
-  .divider{width:90px;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);margin:22px auto;}
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; height: 100%; background: #d8c9ab; font-family: 'EB Garamond', serif; color: var(--ink); }
+  
+  /* Changed body alignment to allow scrolling on smaller screens without clipping the top */
+  body { min-height: 100vh; display: flex; padding: 24px; overflow-y: auto; }
+  
+  .wrapper { margin: auto; display: flex; flex-direction: column; gap: 20px; width: 100%; max-width: 420px; }
 
-  #fileInput{display:none;}
-  .pick-btn, .upload-btn{
-    display:block;width:100%;padding:15px 18px;margin-top:10px;
-    font-family:'EB Garamond',serif;font-size:15.5px;letter-spacing:.06em;text-transform:uppercase;
-    border:1px solid var(--wine-deep);cursor:pointer;transition:opacity .2s ease;
+  .card { 
+    background: var(--sand); border: 1px solid rgba(169,133,79,.35);
+    box-shadow: 0 30px 70px rgba(45,36,29,.3); padding: 48px 34px 40px; 
+    text-align: center; position: relative; 
   }
-  .pick-btn{background:transparent;color:var(--wine-deep);}
-  .upload-btn{background:var(--wine-deep);color:#f4ecdb;}
-  .upload-btn:disabled{opacity:.45;cursor:not-allowed;}
+  .card.recent { padding: 24px 34px; display: none; } /* Hidden by default */
+  
+  .frame { position: absolute; inset: 14px; border: 1px solid rgba(169,133,79,.45); pointer-events: none; }
+  .glass { font-size: 34px; margin-bottom: 12px; }
+  
+  h1 { font-family: 'Cormorant Garamond', serif; font-weight: 500; font-size: 28px; color: var(--wine-deep); margin: 0 0 8px; }
+  h2 { font-family: 'Cormorant Garamond', serif; font-weight: 500; font-size: 22px; color: var(--wine-deep); margin: 0 0 16px; }
+  p.sub { font-size: 15.5px; color: var(--ink-soft); font-style: italic; line-height: 1.6; margin: 0 0 26px; }
+  
+  .divider { width: 90px; height: 1px; background: linear-gradient(90deg, transparent, var(--gold), transparent); margin: 22px auto; }
 
-  .preview-list{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:18px 0 0;}
-  .thumb{width:56px;height:56px;object-fit:cover;border:1px solid var(--gold);}
+  #fileInput { display: none; }
+  .pick-btn, .upload-btn {
+    display: block; width: 100%; padding: 15px 18px; margin-top: 10px;
+    font-family: 'EB Garamond', serif; font-size: 15.5px; letter-spacing: .06em; text-transform: uppercase;
+    border: 1px solid var(--wine-deep); cursor: pointer; transition: opacity .2s ease;
+  }
+  .pick-btn { background: transparent; color: var(--wine-deep); }
+  .upload-btn { background: var(--wine-deep); color: #f4ecdb; }
+  .upload-btn:disabled { opacity: .45; cursor: not-allowed; }
 
-  .progress-wrap{margin-top:18px;height:6px;background:rgba(169,133,79,.2);display:none;}
-  .progress-bar{height:100%;width:0%;background:var(--wine-deep);transition:width .2s ease;}
+  .preview-list, .recent-list { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+  .preview-list { margin: 18px 0 0; }
+  .thumb { width: 56px; height: 56px; object-fit: cover; border: 1px solid var(--gold); }
+  .recent-thumb { width: 64px; height: 64px; object-fit: cover; border: 1px solid var(--gold); }
 
-  .status{margin-top:16px;font-size:13.5px;color:var(--ink-soft);min-height:18px;}
-  .status.ok{color:#4a6b4a;}
-  .status.err{color:#8b3a3a;}
+  .progress-wrap { margin-top: 18px; height: 6px; background: rgba(169,133,79,.2); display: none; }
+  .progress-bar { height: 100%; width: 0%; background: var(--wine-deep); transition: width .2s ease; }
+
+  .status { margin-top: 16px; font-size: 13.5px; color: var(--ink-soft); min-height: 18px; }
+  .status.ok { color: #4a6b4a; }
+  .status.err { color: #8b3a3a; }
 </style>
 </head>
 <body>
 
-  <div class="card">
-    <div class="frame"></div>
-    <div class="glass">🥂</div>
-    <h1>Fotoğrafları Yükleyin</h1>
-    <p class="sub">Çektiğiniz güzel anıları bizimle<br>paylaşmak için fotoğraf seçin.</p>
+  <div class="wrapper">
+    <!-- Main Upload Card -->
+    <div class="card">
+      <div class="frame"></div>
+      <div class="glass">🥂</div>
+      <h1>Fotoğrafları Yükleyin</h1>
+      <p class="sub">Çektiğiniz güzel anıları bizimle<br>paylaşmak için fotoğraf seçin.</p>
 
-    <input type="file" id="fileInput" accept="image/*" multiple>
-    <button class="pick-btn" id="pickBtn">Fotoğraf Seç</button>
+      <input type="file" id="fileInput" accept="image/*" multiple>
+      <button class="pick-btn" id="pickBtn">Fotoğraf Seç</button>
 
-    <div class="preview-list" id="previewList"></div>
+      <div class="preview-list" id="previewList"></div>
 
-    <button class="upload-btn" id="uploadBtn" disabled>Yükle</button>
+      <button class="upload-btn" id="uploadBtn" disabled>Yükle</button>
 
-    <div class="progress-wrap" id="progressWrap"><div class="progress-bar" id="progressBar"></div></div>
-    <div class="divider"></div>
-    <div class="status" id="status">Firebase yapılandırması bekleniyor…</div>
+      <div class="progress-wrap" id="progressWrap"><div class="progress-bar" id="progressBar"></div></div>
+      <div class="divider"></div>
+      <div class="status" id="status">Firebase yapılandırması bekleniyor…</div>
+    </div>
+
+    <!-- Recent Uploads Card -->
+    <div class="card recent" id="recentCard">
+      <div class="frame"></div>
+      <h2>Son Yüklenenler</h2>
+      <div class="recent-list" id="recentList"></div>
+    </div>
   </div>
 
-<!-- Firebase config, generated at deploy time from GitHub Secrets -->
 <script src="config.js"></script>
 
-<!-- Firebase SDK -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
   import { getStorage, ref, uploadBytesResumable, getDownloadURL }
     from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
-  // config.js defines window.FIREBASE_CONFIG.
-  // It is generated automatically at deploy time from GitHub Secrets — see .github/workflows/deploy.yml
   const cfg = {
     apiKey: "AIzaSyDrZRcICwduKMlZLNyi1ujIvWFGndMOu_c",
     authDomain: "wedding-e776e.firebaseapp.com",
@@ -91,8 +112,12 @@
   const previewList = document.getElementById('previewList');
   const progressWrap = document.getElementById('progressWrap');
   const progressBar = document.getElementById('progressBar');
+  
+  const recentCard = document.getElementById('recentCard');
+  const recentList = document.getElementById('recentList');
 
   let selectedFiles = [];
+  let recentUploads = [];
 
   if (!cfg || !cfg.apiKey || cfg.apiKey.indexOf('__') === 0) {
     statusEl.textContent = "Yapılandırma eksik: config.js henüz ayarlanmamış.";
@@ -122,6 +147,19 @@
     statusEl.className = "status";
   });
 
+  function renderRecentUploads() {
+    if (recentUploads.length > 0) {
+      recentCard.style.display = 'block';
+    }
+    recentList.innerHTML = '';
+    recentUploads.forEach(url => {
+      const img = document.createElement('img');
+      img.className = 'recent-thumb';
+      img.src = url;
+      recentList.appendChild(img);
+    });
+  }
+
   uploadBtn.addEventListener('click', async () => {
     if (!storage || selectedFiles.length === 0) return;
     uploadBtn.disabled = true;
@@ -143,7 +181,19 @@
             progressBar.style.width = pct + '%';
           },
           (err) => reject(err),
-          () => { done++; resolve(); }
+          async () => { 
+            try {
+              // Fetch the download URL once upload is complete
+              const downloadURL = await getDownloadURL(task.snapshot.ref);
+              recentUploads.unshift(downloadURL);
+              if (recentUploads.length > 5) recentUploads.pop();
+              
+              done++; 
+              resolve(); 
+            } catch (error) {
+              reject(error);
+            }
+          }
         );
       }).catch(err => {
         statusEl.textContent = "Bir hata oluştu: " + err.message;
@@ -154,11 +204,15 @@
     progressBar.style.width = '100%';
     statusEl.textContent = "Teşekkürler! Fotoğraflarınız yüklendi. 🥂";
     statusEl.className = "status ok";
+    
+    renderRecentUploads();
+
     selectedFiles = [];
     fileInput.value = '';
     previewList.innerHTML = '';
     uploadBtn.disabled = true;
     pickBtn.disabled = false;
+    setTimeout(() => { progressWrap.style.display = 'none'; progressBar.style.width = '0%'; }, 2000);
   });
 </script>
 </body>
