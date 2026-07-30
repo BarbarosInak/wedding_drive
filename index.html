@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>Fotoğrafları Paylaş</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --sand: #f4ecdb;
+    --sand-panel: #efe2c8;
+    --wine-deep: #591b30;
+    --wine: #7c2c46;
+    --gold: #a9854f;
+    --ink: #2d241d;
+    --ink-soft: #6b5c4c;
+  }
+  *{ box-sizing: border-box; }
+  html,body{
+    margin:0; padding:0; height:100%;
+    background: #d8c9ab;
+    font-family:'EB Garamond', serif;
+    color: var(--ink);
+  }
+  body{
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding: 24px;
+  }
+  .card{
+    width: 420px;
+    max-width:100%;
+    background: var(--sand);
+    border: 1px solid rgba(169,133,79,0.35);
+    box-shadow: 0 30px 70px rgba(45,36,29,0.3);
+    padding: 52px 36px 44px;
+    text-align:center;
+    position:relative;
+  }
+  .frame{ position:absolute; inset:14px; border:1px solid rgba(169,133,79,0.45); pointer-events:none; }
+
+  .glass{ font-size: 34px; margin-bottom: 14px; }
+
+  h1{
+    font-family:'Cormorant Garamond', serif;
+    font-weight: 500;
+    font-size: 30px;
+    color: var(--wine-deep);
+    margin: 0 0 10px;
+  }
+  p.sub{
+    font-size: 16px;
+    color: var(--ink-soft);
+    font-style: italic;
+    line-height:1.6;
+    margin: 0 0 30px;
+  }
+
+  .btn{
+    display:inline-block;
+    width:100%;
+    padding: 15px 20px;
+    background: var(--wine-deep);
+    color: #f4ecdb;
+    text-decoration:none;
+    font-family:'EB Garamond', serif;
+    font-size: 16px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    border: 1px solid var(--wine-deep);
+    transition: opacity .2s ease;
+  }
+  .btn:active{ opacity:0.85; }
+
+  .status{
+    margin-top: 22px;
+    font-size: 13.5px;
+    color: var(--ink-soft);
+    min-height: 18px;
+  }
+
+  .divider{
+    width: 90px; height:1px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    margin: 26px auto;
+  }
+</style>
+</head>
+<body>
+
+  <div class="card">
+    <div class="frame"></div>
+    <div class="glass">🥂</div>
+    <h1>Fotoğrafları Paylaş</h1>
+    <p class="sub">Çektiğiniz güzel anıları bizimle paylaşmak için<br>Google Drive'ı açıyoruz…</p>
+
+    <a id="manualBtn" class="btn" href="#">Klasörü Aç</a>
+
+    <div class="divider"></div>
+    <div class="status" id="status">Yönlendiriliyor…</div>
+  </div>
+
+<script>
+  // ---- CONFIGURE THESE ----
+  var FOLDER_URL   = "https://drive.google.com/drive/folders/1b9G3IJUgR_8QdeKSC60TYTrpu_weSEvR?usp=sharing";
+  var FOLDER_ID     = "1b9G3IJUgR_8QdeKSC60TYTrpu_weSEvR";
+  var IOS_APP_STORE = "https://apps.apple.com/app/google-drive/id507874739";
+  var ANDROID_PKG   = "com.google.android.apps.docs";
+  var PLAY_STORE    = "https://play.google.com/store/apps/details?id=" + ANDROID_PKG;
+  // --------------------------
+
+  var ua = navigator.userAgent || navigator.vendor || window.opera;
+  var isIOS = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
+  var isAndroid = /android/i.test(ua);
+  var statusEl = document.getElementById('status');
+  var manualBtn = document.getElementById('manualBtn');
+
+  manualBtn.href = FOLDER_URL;
+
+  function goBrowser(){
+    window.location.href = FOLDER_URL;
+  }
+
+  if (isAndroid) {
+    statusEl.textContent = "Drive uygulaması açılıyor…";
+    var intentUrl =
+      "intent://drive.google.com/drive/folders/" + FOLDER_ID +
+      "?usp=sharing#Intent;scheme=https;package=" + ANDROID_PKG +
+      ";S.browser_fallback_url=" + encodeURIComponent(PLAY_STORE) + ";end";
+    manualBtn.href = intentUrl;
+    window.location.href = intentUrl;
+    // Android's intent scheme handles the Play Store fallback natively.
+
+  } else if (isIOS) {
+    statusEl.textContent = "Drive uygulaması açılıyor…";
+    var deepLink = "googledrive://" + FOLDER_URL;
+    manualBtn.href = deepLink;
+
+    var hasLeft = false;
+    document.addEventListener('visibilitychange', function(){
+      if (document.hidden) hasLeft = true;
+    });
+    window.addEventListener('pagehide', function(){ hasLeft = true; });
+
+    window.location.href = deepLink;
+
+    setTimeout(function(){
+      if (!hasLeft) {
+        statusEl.textContent = "Uygulama bulunamadı, App Store'a yönlendiriliyorsunuz…";
+        manualBtn.href = IOS_APP_STORE;
+        manualBtn.textContent = "App Store'dan İndir";
+        window.location.href = IOS_APP_STORE;
+      }
+    }, 1400);
+
+  } else {
+    // Desktop / other devices — just open in browser
+    statusEl.textContent = "Tarayıcıda açılıyor…";
+    setTimeout(goBrowser, 600);
+  }
+</script>
+
+</body>
+</html>
