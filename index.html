@@ -2,91 +2,45 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<title>Fotoğrafları Paylaş</title>
+<title>Fotoğrafları Yükleyin</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
 <style>
   :root{
-    --sand: #f4ecdb;
-    --sand-panel: #efe2c8;
-    --wine-deep: #591b30;
-    --wine: #7c2c46;
-    --gold: #a9854f;
-    --ink: #2d241d;
-    --ink-soft: #6b5c4c;
+    --sand:#f4ecdb; --wine-deep:#591b30; --wine:#7c2c46;
+    --gold:#a9854f; --ink:#2d241d; --ink-soft:#6b5c4c;
   }
-  *{ box-sizing: border-box; }
-  html,body{
-    margin:0; padding:0; height:100%;
-    background: #d8c9ab;
-    font-family:'EB Garamond', serif;
-    color: var(--ink);
-  }
-  body{
-    min-height:100vh;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    padding: 24px;
-  }
-  .card{
-    width: 420px;
-    max-width:100%;
-    background: var(--sand);
-    border: 1px solid rgba(169,133,79,0.35);
-    box-shadow: 0 30px 70px rgba(45,36,29,0.3);
-    padding: 52px 36px 44px;
-    text-align:center;
-    position:relative;
-  }
-  .frame{ position:absolute; inset:14px; border:1px solid rgba(169,133,79,0.45); pointer-events:none; }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;height:100%;background:#d8c9ab;font-family:'EB Garamond',serif;color:var(--ink);}
+  body{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;}
+  .card{width:420px;max-width:100%;background:var(--sand);border:1px solid rgba(169,133,79,.35);
+    box-shadow:0 30px 70px rgba(45,36,29,.3);padding:48px 34px 40px;text-align:center;position:relative;}
+  .frame{position:absolute;inset:14px;border:1px solid rgba(169,133,79,.45);pointer-events:none;}
+  .glass{font-size:34px;margin-bottom:12px;}
+  h1{font-family:'Cormorant Garamond',serif;font-weight:500;font-size:28px;color:var(--wine-deep);margin:0 0 8px;}
+  p.sub{font-size:15.5px;color:var(--ink-soft);font-style:italic;line-height:1.6;margin:0 0 26px;}
+  .divider{width:90px;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);margin:22px auto;}
 
-  .glass{ font-size: 34px; margin-bottom: 14px; }
+  #fileInput{display:none;}
+  .pick-btn, .upload-btn{
+    display:block;width:100%;padding:15px 18px;margin-top:10px;
+    font-family:'EB Garamond',serif;font-size:15.5px;letter-spacing:.06em;text-transform:uppercase;
+    border:1px solid var(--wine-deep);cursor:pointer;transition:opacity .2s ease;
+  }
+  .pick-btn{background:transparent;color:var(--wine-deep);}
+  .upload-btn{background:var(--wine-deep);color:#f4ecdb;}
+  .upload-btn:disabled{opacity:.45;cursor:not-allowed;}
 
-  h1{
-    font-family:'Cormorant Garamond', serif;
-    font-weight: 500;
-    font-size: 30px;
-    color: var(--wine-deep);
-    margin: 0 0 10px;
-  }
-  p.sub{
-    font-size: 16px;
-    color: var(--ink-soft);
-    font-style: italic;
-    line-height:1.6;
-    margin: 0 0 30px;
-  }
+  .preview-list{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:18px 0 0;}
+  .thumb{width:56px;height:56px;object-fit:cover;border:1px solid var(--gold);}
 
-  .btn{
-    display:inline-block;
-    width:100%;
-    padding: 15px 20px;
-    background: var(--wine-deep);
-    color: #f4ecdb;
-    text-decoration:none;
-    font-family:'EB Garamond', serif;
-    font-size: 16px;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    border: 1px solid var(--wine-deep);
-    transition: opacity .2s ease;
-  }
-  .btn:active{ opacity:0.85; }
+  .progress-wrap{margin-top:18px;height:6px;background:rgba(169,133,79,.2);display:none;}
+  .progress-bar{height:100%;width:0%;background:var(--wine-deep);transition:width .2s ease;}
 
-  .status{
-    margin-top: 22px;
-    font-size: 13.5px;
-    color: var(--ink-soft);
-    min-height: 18px;
-  }
-
-  .divider{
-    width: 90px; height:1px;
-    background: linear-gradient(90deg, transparent, var(--gold), transparent);
-    margin: 26px auto;
-  }
+  .status{margin-top:16px;font-size:13.5px;color:var(--ink-soft);min-height:18px;}
+  .status.ok{color:#4a6b4a;}
+  .status.err{color:#8b3a3a;}
 </style>
 </head>
 <body>
@@ -94,69 +48,110 @@
   <div class="card">
     <div class="frame"></div>
     <div class="glass">🥂</div>
-    <h1>Fotoğrafları Paylaş</h1>
-    <p class="sub">Çektiğiniz güzel anıları bizimle paylaşmak için<br>aşağıdaki butona basın.</p>
+    <h1>Fotoğrafları Yükleyin</h1>
+    <p class="sub">Çektiğiniz güzel anıları bizimle<br>paylaşmak için fotoğraf seçin.</p>
 
-    <a id="manualBtn" class="btn" href="#">Fotoğrafları Yükleyin</a>
+    <input type="file" id="fileInput" accept="image/*" multiple>
+    <button class="pick-btn" id="pickBtn">Fotoğraf Seç</button>
 
+    <div class="preview-list" id="previewList"></div>
+
+    <button class="upload-btn" id="uploadBtn" disabled>Yükle</button>
+
+    <div class="progress-wrap" id="progressWrap"><div class="progress-bar" id="progressBar"></div></div>
     <div class="divider"></div>
-    <div class="status" id="status"></div>
+    <div class="status" id="status">Firebase yapılandırması bekleniyor…</div>
   </div>
 
-<script>
-  // ---- CONFIGURE THESE ----
-  var FOLDER_URL   = "https://drive.google.com/drive/folders/1b9G3IJUgR_8QdeKSC60TYTrpu_weSEvR?usp=sharing";
-  var FOLDER_ID     = "1b9G3IJUgR_8QdeKSC60TYTrpu_weSEvR";
-  var IOS_APP_STORE = "https://apps.apple.com/app/google-drive/id507874739";
-  var ANDROID_PKG   = "com.google.android.apps.docs";
-  var PLAY_STORE    = "https://play.google.com/store/apps/details?id=" + ANDROID_PKG;
-  // --------------------------
+<!-- Firebase config, generated at deploy time from GitHub Secrets -->
+<script src="config.js"></script>
 
-  var ua = navigator.userAgent || navigator.vendor || window.opera;
-  var isIOS = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
-  var isAndroid = /android/i.test(ua);
-  var statusEl = document.getElementById('status');
-  var manualBtn = document.getElementById('manualBtn');
+<!-- Firebase SDK -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getStorage, ref, uploadBytesResumable, getDownloadURL }
+    from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
-  function openDrive(e){
-    e.preventDefault();
+  // config.js defines window.FIREBASE_CONFIG.
+  // It is generated automatically at deploy time from GitHub Secrets — see .github/workflows/deploy.yml
+  const cfg = window.FIREBASE_CONFIG;
 
-    if (isAndroid) {
-      statusEl.textContent = "Drive uygulaması açılıyor…";
-      var intentUrl =
-        "intent://drive.google.com/drive/folders/" + FOLDER_ID +
-        "?usp=sharing#Intent;scheme=https;package=" + ANDROID_PKG +
-        ";S.browser_fallback_url=" + encodeURIComponent(PLAY_STORE) + ";end";
-      window.location.href = intentUrl;
-      // Android's intent scheme handles the Play Store fallback natively.
+  const statusEl = document.getElementById('status');
+  const fileInput = document.getElementById('fileInput');
+  const pickBtn = document.getElementById('pickBtn');
+  const uploadBtn = document.getElementById('uploadBtn');
+  const previewList = document.getElementById('previewList');
+  const progressWrap = document.getElementById('progressWrap');
+  const progressBar = document.getElementById('progressBar');
 
-    } else if (isIOS) {
-      statusEl.textContent = "Drive uygulaması açılıyor…";
-      var deepLink = "googledrive://" + FOLDER_URL;
+  let selectedFiles = [];
 
-      var hasLeft = false;
-      document.addEventListener('visibilitychange', function(){
-        if (document.hidden) hasLeft = true;
-      });
-      window.addEventListener('pagehide', function(){ hasLeft = true; });
-
-      window.location.href = deepLink;
-
-      setTimeout(function(){
-        if (!hasLeft) {
-          statusEl.textContent = "Uygulama bulunamadı, App Store'a yönlendiriliyorsunuz…";
-          window.location.href = IOS_APP_STORE;
-        }
-      }, 1400);
-
-    } else {
-      // Desktop / other devices — just open in browser
-      window.location.href = FOLDER_URL;
-    }
+  if (!cfg || !cfg.apiKey || cfg.apiKey.indexOf('__') === 0) {
+    statusEl.textContent = "Yapılandırma eksik: config.js henüz ayarlanmamış.";
+    statusEl.className = "status err";
+  } else {
+    statusEl.textContent = "Hazır — fotoğraf seçebilirsiniz.";
   }
 
-  manualBtn.addEventListener('click', openDrive);
-</script>
+  const app = cfg ? initializeApp(cfg) : null;
+  const storage = app ? getStorage(app) : null;
 
+  pickBtn.addEventListener('click', () => fileInput.click());
+
+  fileInput.addEventListener('change', () => {
+    selectedFiles = Array.from(fileInput.files);
+    previewList.innerHTML = '';
+    selectedFiles.forEach(f => {
+      const img = document.createElement('img');
+      img.className = 'thumb';
+      img.src = URL.createObjectURL(f);
+      previewList.appendChild(img);
+    });
+    uploadBtn.disabled = selectedFiles.length === 0 || !storage;
+    statusEl.textContent = selectedFiles.length
+      ? selectedFiles.length + " fotoğraf seçildi."
+      : "Hazır — fotoğraf seçebilirsiniz.";
+    statusEl.className = "status";
+  });
+
+  uploadBtn.addEventListener('click', async () => {
+    if (!storage || selectedFiles.length === 0) return;
+    uploadBtn.disabled = true;
+    pickBtn.disabled = true;
+    progressWrap.style.display = 'block';
+
+    let done = 0;
+    const total = selectedFiles.length;
+
+    for (const file of selectedFiles) {
+      const path = 'wedding-photos/' + Date.now() + '-' + Math.random().toString(36).slice(2) + '-' + file.name;
+      const storageRef = ref(storage, path);
+      const task = uploadBytesResumable(storageRef, file);
+
+      await new Promise((resolve, reject) => {
+        task.on('state_changed',
+          (snap) => {
+            const pct = Math.round(((done + snap.bytesTransferred / snap.totalBytes) / total) * 100);
+            progressBar.style.width = pct + '%';
+          },
+          (err) => reject(err),
+          () => { done++; resolve(); }
+        );
+      }).catch(err => {
+        statusEl.textContent = "Bir hata oluştu: " + err.message;
+        statusEl.className = "status err";
+      });
+    }
+
+    progressBar.style.width = '100%';
+    statusEl.textContent = "Teşekkürler! Fotoğraflarınız yüklendi. 🥂";
+    statusEl.className = "status ok";
+    selectedFiles = [];
+    fileInput.value = '';
+    previewList.innerHTML = '';
+    uploadBtn.disabled = true;
+    pickBtn.disabled = false;
+  });
+</script>
 </body>
 </html>
