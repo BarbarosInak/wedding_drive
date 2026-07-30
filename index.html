@@ -74,7 +74,15 @@
 
   // config.js defines window.FIREBASE_CONFIG.
   // It is generated automatically at deploy time from GitHub Secrets — see .github/workflows/deploy.yml
-  const cfg = window.FIREBASE_CONFIG;
+  const cfg = {
+    apiKey: "AIzaSyDrZRcICwduKMlZLNyi1ujIvWFGndMOu_c",
+    authDomain: "wedding-e776e.firebaseapp.com",
+    projectId: "wedding-e776e",
+    storageBucket: "wedding-e776e.firebasestorage.app",
+    messagingSenderId: "553319615482",
+    appId: "1:553319615482:web:68eb05d2b37d6dd55c7243",
+    measurementId: "G-N1Q96QQ1SC"
+  };
 
   const statusEl = document.getElementById('status');
   const fileInput = document.getElementById('fileInput');
